@@ -2,7 +2,9 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'kotlin-android-extensions'
     id 'dagger.hilt.android.plugin'
+    id 'androidx.navigation.safeargs.kotlin'
 }
 
 
@@ -41,6 +43,7 @@ android {
 }
 
 dependencies {
+    implementation 'androidx.annotation:annotation:1.2.0'
     def lifecycle_version = "2.3.1"
     def nav_version = "2.3.5"
 
@@ -83,12 +86,26 @@ dependencies {
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation "com.squareup.retrofit2:converter-scalars:2.9.0"
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+
+    implementation "com.squareup.okhttp3:logging-interceptor:4.9.0"
+
     //gson
     implementation 'com.google.code.gson:gson:2.8.6'
 
     // Saved state module for ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
 
+    // MotionLayout
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.0-beta02'
+
+    // Timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
+
+    // Markwon
+    implementation "io.noties.markwon:core:4.4.0"
+
+    // Color Picker Dialog
+    implementation "com.github.skydoves:colorpickerview:2.1.7"
 
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
