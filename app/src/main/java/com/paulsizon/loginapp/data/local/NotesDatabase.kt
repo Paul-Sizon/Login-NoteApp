@@ -1,8 +1,6 @@
 package com.paulsizon.loginapp.data.local
 
 import androidx.room.Database
-import androidx.room.Entity
-import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.paulsizon.loginapp.data.local.entities.Note
 

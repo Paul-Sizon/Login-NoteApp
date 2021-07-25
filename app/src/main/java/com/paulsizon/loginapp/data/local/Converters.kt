@@ -4,7 +4,7 @@ import androidx.room.TypeConverter
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-// to help room convert list
+// to help room convert list of strings
 class Converters {
     @TypeConverter
     fun fromList(list: List<String>): String {
