@@ -1,0 +1,5 @@
+package com.paulsizon.loginapp.other
+
+object Constants {
+    val IGNORE_AUTH_URLS =  listOf("/login", "/register")
+}
