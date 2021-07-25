@@ -95,6 +95,9 @@ dependencies {
     // Saved state module for ViewModel
     implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:$lifecycle_version"
 
+    //to encrypt shared prefs
+    implementation "androidx.security:security-crypto:1.1.0-alpha02"
+
     // MotionLayout
     implementation 'androidx.constraintlayout:constraintlayout:2.1.0-beta02'
 
