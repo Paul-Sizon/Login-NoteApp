@@ -1,7 +1,8 @@
-package com.paulsizon.loginapp
+package com.paulsizon.loginapp.ui
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import com.paulsizon.loginapp.R
 
 
 class MainActivity : AppCompatActivity() {
