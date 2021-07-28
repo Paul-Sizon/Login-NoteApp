@@ -7,5 +7,8 @@ object Constants {
     //todo insert my ip instead of 10.0.2.2
     const val BASE_URL = "http://10.0.2.2:8001"
 
+    const val KEY_LOGGED_IN_EMAIL = "KEY_LOGGED_IN_EMAIL"
+    const val KEY_PASSWORD = "KEY_PASSWORD"
+
     const val ENCRYPTED_SHARED_PREF_NAME = "enc_shared_pref"
 }
