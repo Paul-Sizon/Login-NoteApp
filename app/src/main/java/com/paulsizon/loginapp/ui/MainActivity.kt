@@ -3,8 +3,9 @@ package com.paulsizon.loginapp.ui
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.paulsizon.loginapp.R
+import dagger.hilt.android.AndroidEntryPoint
 
-
+@AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
 
