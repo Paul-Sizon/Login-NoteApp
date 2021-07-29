@@ -13,6 +13,8 @@ import com.paulsizon.loginapp.R
 import com.paulsizon.loginapp.data.remote.BasicAuthInterceptor
 import com.paulsizon.loginapp.other.Constants.KEY_LOGGED_IN_EMAIL
 import com.paulsizon.loginapp.other.Constants.KEY_PASSWORD
+import com.paulsizon.loginapp.other.Constants.NO_EMAIL
+import com.paulsizon.loginapp.other.Constants.NO_PASSWORD
 import com.paulsizon.loginapp.other.Status
 import com.paulsizon.loginapp.ui.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
@@ -35,6 +37,11 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (isLoggedIn()){
+            authenticateApi(curEmail?:"", curPassword?: "")
+            redirectLogin()
+        }
+
         requireActivity().requestedOrientation = SCREEN_ORIENTATION_PORTRAIT
         subscribeObservers()
 
@@ -55,14 +62,20 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
 
     }
 
-    private fun redirectLogin(){
-        val navOptions = NavOptions.Builder().setPopUpTo(R.id.authFragment , true).build()
+    private fun redirectLogin() {
+        val navOptions = NavOptions.Builder().setPopUpTo(R.id.authFragment, true).build()
         findNavController().navigate(
             AuthFragmentDirections.actionAuthFragmentToNotesFragment(), navOptions
         )
     }
 
-    private fun authenticateApi(email: String, password: String){
+    private fun isLoggedIn(): Boolean {
+        curEmail = sharedPrefs.getString(KEY_LOGGED_IN_EMAIL, NO_EMAIL) ?: NO_EMAIL
+        curPassword = sharedPrefs.getString(KEY_PASSWORD, NO_PASSWORD) ?: NO_PASSWORD
+        return curEmail != NO_EMAIL && curPassword != NO_PASSWORD
+    }
+
+    private fun authenticateApi(email: String, password: String) {
         basicAuthInterceptor.email = email
         basicAuthInterceptor.password = password
     }
@@ -76,7 +89,7 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
                         showSnackBar(result.data ?: "Successfully logged in")
                         sharedPrefs.edit().putString(KEY_LOGGED_IN_EMAIL, curEmail).apply()
                         sharedPrefs.edit().putString(KEY_PASSWORD, curPassword).apply()
-                        authenticateApi(curEmail?: "", curPassword?: "")
+                        authenticateApi(curEmail ?: "", curPassword ?: "")
                         redirectLogin()
                     }
                     Status.ERROR -> {
