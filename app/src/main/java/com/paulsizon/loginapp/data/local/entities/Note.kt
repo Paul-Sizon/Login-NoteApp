@@ -14,7 +14,7 @@ data class Note(
     val color: String,
     //to be ignored by retrofit
     @Expose(deserialize = false, serialize = false)
-    val isSync: Boolean = false,
+    var isSynced: Boolean = false,
     //id key is already generated on server side
     @PrimaryKey(autoGenerate = false)
     val id: String = UUID.randomUUID().toString()

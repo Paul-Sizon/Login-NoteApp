@@ -12,7 +12,6 @@ import com.paulsizon.loginapp.other.networkBoundResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 import javax.inject.Inject
 
 class NoteRepository @Inject constructor(
@@ -20,6 +19,24 @@ class NoteRepository @Inject constructor(
     private val noteApi: NoteApi,
     private val context: Application
 ) {
+    suspend fun insertNote(note: Note) {
+        val response = try {
+            noteApi.addNote(note)
+        } catch (e: Exception) {
+            null
+        }
+        if(response !=null && response.isSuccessful) {
+            noteDao.insertNote(note.apply { isSynced = true })
+        } else {
+            //isSynced is false by default
+            noteDao.insertNote(note)
+        }
+    }
+
+    suspend fun insertNotes(notes: List<Note>) {
+        notes.forEach { insertNote(it) }
+    }
+
     fun getAllNotes(): Flow<Resource<List<Note>>> {
         return networkBoundResource(
             query = {
@@ -30,7 +47,7 @@ class NoteRepository @Inject constructor(
             },
             saveFetchResult = { response ->
                 response.body()?.let {
-                    //todo insert notes in db
+                    insertNotes(it)
                 }
             },
             shouldFetch = {
