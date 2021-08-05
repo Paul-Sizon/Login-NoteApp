@@ -1,8 +1,11 @@
 package com.paulsizon.loginapp.ui.addeditnote
 
 import android.content.SharedPreferences
+import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.navArgs
 import com.paulsizon.loginapp.R
@@ -10,11 +13,16 @@ import com.paulsizon.loginapp.data.local.entities.Note
 import com.paulsizon.loginapp.other.Constants.DEFAULT_NOTE_COLOR
 import com.paulsizon.loginapp.other.Constants.KEY_LOGGED_IN_EMAIL
 import com.paulsizon.loginapp.other.Constants.NO_EMAIL
+import com.paulsizon.loginapp.other.Status
 import com.paulsizon.loginapp.ui.BaseFragment
+import com.paulsizon.loginapp.ui.dialogs.ColorPickerDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_add_edit_note.*
+import kotlinx.android.synthetic.main.item_note.view.*
 import java.util.*
 import javax.inject.Inject
+
+const val FRAGMENT_TAG = "AddEditNoteFragment"
 
 @AndroidEntryPoint
 class AddEditNoteFragment : BaseFragment(R.layout.fragment_add_edit_note){
@@ -33,10 +41,54 @@ class AddEditNoteFragment : BaseFragment(R.layout.fragment_add_edit_note){
             viewModel.getNoteById(args.id)
             subscribeObservers()
         }
+
+        if (savedInstanceState!=null){
+            val colorPickerDialog = parentFragmentManager.findFragmentByTag(FRAGMENT_TAG) as ColorPickerDialogFragment?
+            colorPickerDialog?.setPositiveListener {
+                changeColorViewNote(it)
+            }
+        }
+
+        viewNoteColor.setOnClickListener {
+            ColorPickerDialogFragment().apply {
+                setPositiveListener {
+                    changeColorViewNote(it)
+                }
+            }.show(parentFragmentManager, FRAGMENT_TAG)
+        }
+    }
+
+    private fun changeColorViewNote(colorString: String){
+        val drawable = ResourcesCompat.getDrawable(resources, R.drawable.circle_shape, null)
+        drawable?.let {
+            val wrappedDrawable = DrawableCompat.wrap(it)
+            val color = Color.parseColor("#${colorString}")
+            DrawableCompat.setTint(wrappedDrawable, color)
+            viewNoteColor.background  = wrappedDrawable
+            curNoteColor = colorString
+        }
     }
 
     private fun subscribeObservers(){
-
+        viewModel.note.observe(viewLifecycleOwner, {
+            it?.getContentIfnotHandled()?.let { result ->
+                when(result.status){
+                    Status.SUCCESS -> {
+                        val note = result.data!!
+                        curNote = note
+                        etNoteTitle.setText(note.title)
+                        etNoteContent.setText(note.content)
+                        changeColorViewNote(note.color)
+                    }
+                    Status.ERROR -> {
+                        showSnackBar(result.message?: "Note not found")
+                    }
+                    Status.LOADING -> {
+//                        NO-OP
+                    }
+                }
+            }
+        })
     }
 
     override fun onPause() {
