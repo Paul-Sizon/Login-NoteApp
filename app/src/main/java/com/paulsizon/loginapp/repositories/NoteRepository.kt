@@ -3,9 +3,11 @@ package com.paulsizon.loginapp.repositories
 import android.app.Application
 import android.util.Log
 import com.paulsizon.loginapp.data.local.NoteDao
+import com.paulsizon.loginapp.data.local.entities.LocallyDeletedNoteID
 import com.paulsizon.loginapp.data.local.entities.Note
 import com.paulsizon.loginapp.data.remote.NoteApi
 import com.paulsizon.loginapp.data.remote.requests.AccountRequest
+import com.paulsizon.loginapp.data.remote.requests.DeleteNoteRequest
 import com.paulsizon.loginapp.other.Resource
 import com.paulsizon.loginapp.other.checkForInternetConnection
 import com.paulsizon.loginapp.other.networkBoundResource
@@ -25,7 +27,7 @@ class NoteRepository @Inject constructor(
         } catch (e: Exception) {
             null
         }
-        if(response !=null && response.isSuccessful) {
+        if (response != null && response.isSuccessful) {
             noteDao.insertNote(note.apply { isSynced = true })
         } else {
             //isSynced is false by default
@@ -37,7 +39,25 @@ class NoteRepository @Inject constructor(
         notes.forEach { insertNote(it) }
     }
 
-    suspend fun getNoteById(noteId:String) = noteDao.getNoteById(noteId)
+    suspend fun deleteNote(noteID: String) {
+        val response = try {
+            noteApi.deleteNote(DeleteNoteRequest(noteID))
+        } catch (e: Exception){
+            null
+        }
+        noteDao.deleteNoteById(noteID)
+        if (response == null || !response.isSuccessful){
+            noteDao.insertLocallyDeletedNoteId(LocallyDeletedNoteID(noteID))
+        } else {
+            deleteLocallyDeletedNoteID(noteID)
+        }
+    }
+
+    suspend fun deleteLocallyDeletedNoteID(deletedNoteID: String) {
+        noteDao.deleteLocallyDeletedNoteIDs(deletedNoteID)
+    }
+
+    suspend fun getNoteById(noteId: String) = noteDao.getNoteById(noteId)
 
     fun getAllNotes(): Flow<Resource<List<Note>>> {
         return networkBoundResource(
