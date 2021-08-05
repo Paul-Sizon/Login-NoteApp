@@ -37,6 +37,8 @@ class NoteRepository @Inject constructor(
         notes.forEach { insertNote(it) }
     }
 
+    suspend fun getNoteById(noteId:String) = noteDao.getNoteById(noteId)
+
     fun getAllNotes(): Flow<Resource<List<Note>>> {
         return networkBoundResource(
             query = {
