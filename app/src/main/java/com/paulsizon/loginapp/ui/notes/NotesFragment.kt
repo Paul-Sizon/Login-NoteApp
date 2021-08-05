@@ -103,6 +103,7 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
                 }
             }
         })
+        //in order to avoid swiping away item and swipe-to-refresh at the same time
         swipingItem.observe(viewLifecycleOwner, Observer {
             swipeRefreshLayout.isEnabled = !it
         })
