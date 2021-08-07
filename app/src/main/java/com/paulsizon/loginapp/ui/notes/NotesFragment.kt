@@ -53,6 +53,7 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().requestedOrientation = SCREEN_ORIENTATION_USER
         setupRecyclerView()
+        setupSwipeRefreshedLayout()
         subscribeToObservers()
 
         noteAdapter.setOnItemClickListener {
@@ -103,7 +104,7 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
                 }
             }
         })
-        //in order to avoid swiping away item and swipe-to-refresh at the same time
+        //in order to avoid swiping-away item and swipe-to-refresh at the same time
         swipingItem.observe(viewLifecycleOwner, Observer {
             swipeRefreshLayout.isEnabled = !it
         })
@@ -146,6 +147,12 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
                 }
                 show()
             }
+        }
+    }
+
+    private fun setupSwipeRefreshedLayout(){
+        swipeRefreshLayout.setOnRefreshListener {
+            viewModel.syncAllNotes()
         }
     }
 

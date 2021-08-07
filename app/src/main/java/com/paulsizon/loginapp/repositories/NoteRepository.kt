@@ -14,6 +14,7 @@ import com.paulsizon.loginapp.other.networkBoundResource
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 import javax.inject.Inject
 
 class NoteRepository @Inject constructor(
@@ -59,17 +60,39 @@ class NoteRepository @Inject constructor(
 
     suspend fun getNoteById(noteId: String) = noteDao.getNoteById(noteId)
 
+    private var curNotesReponse: Response<List<Note>>? = null
+
+    suspend fun syncNotes(){
+//        get locally deleted notes
+        val locallyDeletedNoteIDs = noteDao.getAllLocallyDeletedNoteIDs()
+//       delete them on server
+        locallyDeletedNoteIDs.forEach { id ->
+            deleteNote(id.deletedNoteID)
+        }
+//      upload unsync notes to server
+        val unSyncedNotes = noteDao.getAllUnSyncNotes()
+        unSyncedNotes.forEach { note -> insertNote(note) }
+//      get notes from server
+        curNotesReponse = noteApi.getNotes()
+//      delete notes locally and get them from server with IsSync being true
+        curNotesReponse?.body()?.let { notes ->
+            noteDao.deleteAllNotes()
+            insertNotes(notes.onEach { note -> note.isSynced = true })
+        }
+    }
+
     fun getAllNotes(): Flow<Resource<List<Note>>> {
         return networkBoundResource(
             query = {
                 noteDao.getAllNotes()
             },
             fetch = {
-                noteApi.getNotes()
+                syncNotes()
+                curNotesReponse
             },
             saveFetchResult = { response ->
-                response.body()?.let {
-                    insertNotes(it)
+                response?.body()?.let {
+                    insertNotes(it.onEach { note -> note.isSynced = true })
                 }
             },
             shouldFetch = {
