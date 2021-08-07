@@ -5,7 +5,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 
 abstract class BaseFragment(layoutId: Int) : Fragment(layoutId) {
-    fun showSnackBar(text: String) {
+    fun showSnackbar(text: String) {
         Snackbar.make(
             requireActivity().rootLayout,
             text,

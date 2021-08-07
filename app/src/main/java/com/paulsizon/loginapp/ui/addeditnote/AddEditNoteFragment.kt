@@ -18,7 +18,6 @@ import com.paulsizon.loginapp.ui.BaseFragment
 import com.paulsizon.loginapp.ui.dialogs.ColorPickerDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.android.synthetic.main.fragment_add_edit_note.*
-import kotlinx.android.synthetic.main.item_note.view.*
 import java.util.*
 import javax.inject.Inject
 
@@ -81,7 +80,7 @@ class AddEditNoteFragment : BaseFragment(R.layout.fragment_add_edit_note){
                         changeColorViewNote(note.color)
                     }
                     Status.ERROR -> {
-                        showSnackBar(result.message?: "Note not found")
+                        showSnackbar(result.message?: "Note not found")
                     }
                     Status.LOADING -> {
 //                        NO-OP

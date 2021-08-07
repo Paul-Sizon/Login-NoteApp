@@ -23,7 +23,6 @@ import com.paulsizon.loginapp.other.Constants.NO_PASSWORD
 import com.paulsizon.loginapp.other.Status
 import com.paulsizon.loginapp.ui.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_add_edit_note.*
 import kotlinx.android.synthetic.main.fragment_notes.*
 import javax.inject.Inject
 
@@ -84,7 +83,7 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
                     Status.ERROR -> {
                         event.getContentIfnotHandled()?.let { errorResource ->
                             errorResource.message?.let { message ->
-                                showSnackBar(message)
+                                showSnackbar(message)
 
                             }
                         }

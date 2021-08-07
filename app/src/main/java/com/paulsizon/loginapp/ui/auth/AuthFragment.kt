@@ -4,7 +4,6 @@ import android.content.SharedPreferences
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 import android.os.Bundle
 import android.view.View
-import android.widget.Toast
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavOptions
@@ -86,7 +85,7 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
                 when (result.status) {
                     Status.SUCCESS -> {
                         loginProgressBar.visibility = View.GONE
-                        showSnackBar(result.data ?: "Successfully logged in")
+                        showSnackbar(result.data ?: "Successfully logged in")
                         sharedPrefs.edit().putString(KEY_LOGGED_IN_EMAIL, curEmail).apply()
                         sharedPrefs.edit().putString(KEY_PASSWORD, curPassword).apply()
                         authenticateApi(curEmail ?: "", curPassword ?: "")
@@ -94,7 +93,7 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
                     }
                     Status.ERROR -> {
                         loginProgressBar.visibility = View.GONE
-                        showSnackBar(result.message ?: "An unknown error occurred")
+                        showSnackbar(result.message ?: "An unknown error occurred")
                     }
                     Status.LOADING -> {
                         loginProgressBar.visibility = View.VISIBLE
@@ -108,11 +107,11 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
                 when (result.status) {
                     Status.SUCCESS -> {
                         registerProgressBar.visibility = View.GONE
-                        showSnackBar(result.data ?: "Successfully registered an account")
+                        showSnackbar(result.data ?: "Successfully registered an account")
                     }
                     Status.ERROR -> {
                         registerProgressBar.visibility = View.GONE
-                        showSnackBar(result.message ?: "An unknown error occurred")
+                        showSnackbar(result.message ?: "An unknown error occurred")
                     }
                     Status.LOADING -> {
                         registerProgressBar.visibility = View.VISIBLE
