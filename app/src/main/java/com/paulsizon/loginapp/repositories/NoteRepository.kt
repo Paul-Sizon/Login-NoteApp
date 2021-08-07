@@ -7,6 +7,7 @@ import com.paulsizon.loginapp.data.local.entities.LocallyDeletedNoteID
 import com.paulsizon.loginapp.data.local.entities.Note
 import com.paulsizon.loginapp.data.remote.NoteApi
 import com.paulsizon.loginapp.data.remote.requests.AccountRequest
+import com.paulsizon.loginapp.data.remote.requests.AddOwnerRequest
 import com.paulsizon.loginapp.data.remote.requests.DeleteNoteRequest
 import com.paulsizon.loginapp.other.Resource
 import com.paulsizon.loginapp.other.checkForInternetConnection
@@ -53,6 +54,8 @@ class NoteRepository @Inject constructor(
             deleteLocallyDeletedNoteID(noteID)
         }
     }
+
+    fun observeNoteById(noteId: String) = noteDao.observeNoteById(noteId)
 
     suspend fun deleteLocallyDeletedNoteID(deletedNoteID: String) {
         noteDao.deleteLocallyDeletedNoteIDs(deletedNoteID)
@@ -104,6 +107,22 @@ class NoteRepository @Inject constructor(
     suspend fun login(email: String, password: String) = withContext(Dispatchers.IO) {
         try {
             val response = noteApi.login(AccountRequest(email, password))
+            if (response.isSuccessful && response.body()!!.succeful) {
+                Resource.success(response.body()?.message)
+            } else {
+                Resource.error(response.body()?.message ?: response.message(), null)
+            }
+        } catch (e: Exception) {
+            Log.i("DebugApp", "Login: $e")
+            Resource.error(
+                "Could not connect to the servers. Please check internet connection",
+                null
+            )
+        }
+    }
+    suspend fun addOwnerToNote(owner: String, noteId: String) = withContext(Dispatchers.IO) {
+        try {
+            val response = noteApi.addOwnerToNote(AddOwnerRequest(owner, noteId))
             if (response.isSuccessful && response.body()!!.succeful) {
                 Resource.success(response.body()?.message)
             } else {
