@@ -3,13 +3,16 @@ package com.paulsizon.loginapp.ui.auth
 import android.content.SharedPreferences
 import android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.paulsizon.loginapp.R
 import com.paulsizon.loginapp.data.remote.BasicAuthInterceptor
+import com.paulsizon.loginapp.databinding.FragmentAuthBinding
 import com.paulsizon.loginapp.other.Constants.KEY_LOGGED_IN_EMAIL
 import com.paulsizon.loginapp.other.Constants.KEY_PASSWORD
 import com.paulsizon.loginapp.other.Constants.NO_EMAIL
@@ -17,11 +20,10 @@ import com.paulsizon.loginapp.other.Constants.NO_PASSWORD
 import com.paulsizon.loginapp.other.Status
 import com.paulsizon.loginapp.ui.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_auth.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class AuthFragment : BaseFragment(R.layout.fragment_auth) {
+class AuthFragment : BaseFragment() {
 
     private val viewModel: AuthViewModel by viewModels()
 
@@ -34,29 +36,43 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
     private var curEmail: String? = null
     private var curPassword: String? = null
 
+    lateinit var binding: FragmentAuthBinding
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        binding = FragmentAuthBinding.inflate(inflater, container, false)
+        return binding.root
+
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (isLoggedIn()){
-            authenticateApi(curEmail?:"", curPassword?: "")
+        if (isLoggedIn()) {
+            authenticateApi(curEmail ?: "", curPassword ?: "")
             redirectLogin()
         }
 
         requireActivity().requestedOrientation = SCREEN_ORIENTATION_PORTRAIT
         subscribeObservers()
+        binding.apply {
+            btnLogin.setOnClickListener {
+                val email = etLoginEmail.text.toString()
+                val password = etLoginPassword.text.toString()
+                curEmail = email
+                curPassword = password
+                viewModel.login(email, password)
+            }
 
-        btnLogin.setOnClickListener {
-            val email = etLoginEmail.text.toString()
-            val password = etLoginPassword.text.toString()
-            curEmail = email
-            curPassword = password
-            viewModel.login(email, password)
-        }
+            btnRegister.setOnClickListener {
+                val email = etRegisterEmail.text.toString()
+                val password = etRegisterPassword.text.toString()
+                val confirmedPassword = etRegisterPasswordConfirm.text.toString()
+                viewModel.register(email, password, confirmedPassword)
+            }
 
-        btnRegister.setOnClickListener {
-            val email = etRegisterEmail.text.toString()
-            val password = etRegisterPassword.text.toString()
-            val confirmedPassword = etRegisterPasswordConfirm.text.toString()
-            viewModel.register(email, password, confirmedPassword)
         }
 
     }
@@ -84,7 +100,7 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
             result?.let {
                 when (result.status) {
                     Status.SUCCESS -> {
-                        loginProgressBar.visibility = View.GONE
+                        binding.loginProgressBar.visibility = View.GONE
                         showSnackbar(result.data ?: "Successfully logged in")
                         sharedPrefs.edit().putString(KEY_LOGGED_IN_EMAIL, curEmail).apply()
                         sharedPrefs.edit().putString(KEY_PASSWORD, curPassword).apply()
@@ -92,11 +108,11 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
                         redirectLogin()
                     }
                     Status.ERROR -> {
-                        loginProgressBar.visibility = View.GONE
+                        binding.loginProgressBar.visibility = View.GONE
                         showSnackbar(result.message ?: "An unknown error occurred")
                     }
                     Status.LOADING -> {
-                        loginProgressBar.visibility = View.VISIBLE
+                        binding.loginProgressBar.visibility = View.VISIBLE
                     }
                 }
             }
@@ -106,15 +122,15 @@ class AuthFragment : BaseFragment(R.layout.fragment_auth) {
             result?.let {
                 when (result.status) {
                     Status.SUCCESS -> {
-                        registerProgressBar.visibility = View.GONE
+                        binding.registerProgressBar.visibility = View.GONE
                         showSnackbar(result.data ?: "Successfully registered an account")
                     }
                     Status.ERROR -> {
-                        registerProgressBar.visibility = View.GONE
+                        binding.registerProgressBar.visibility = View.GONE
                         showSnackbar(result.message ?: "An unknown error occurred")
                     }
                     Status.LOADING -> {
-                        registerProgressBar.visibility = View.VISIBLE
+                        binding.registerProgressBar.visibility = View.VISIBLE
                     }
                 }
             }

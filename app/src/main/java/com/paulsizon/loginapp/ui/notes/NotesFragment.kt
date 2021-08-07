@@ -16,6 +16,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import com.paulsizon.loginapp.R
 import com.paulsizon.loginapp.adapters.NoteAdapter
+import com.paulsizon.loginapp.databinding.FragmentNotesBinding
 import com.paulsizon.loginapp.other.Constants.KEY_LOGGED_IN_EMAIL
 import com.paulsizon.loginapp.other.Constants.KEY_PASSWORD
 import com.paulsizon.loginapp.other.Constants.NO_EMAIL
@@ -23,11 +24,10 @@ import com.paulsizon.loginapp.other.Constants.NO_PASSWORD
 import com.paulsizon.loginapp.other.Status
 import com.paulsizon.loginapp.ui.BaseFragment
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.fragment_notes.*
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotesFragment : BaseFragment(R.layout.fragment_notes) {
+class NotesFragment : BaseFragment() {
 
     private val viewModel: NotesViewModel by viewModels()
 
@@ -38,15 +38,19 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
 
     private val swipingItem = MutableLiveData(false)
 
+    lateinit var binding: FragmentNotesBinding
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = FragmentNotesBinding.inflate(inflater, container, false)
         setHasOptionsMenu(true)
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return binding.root
 
     }
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -62,7 +66,7 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
         }
 
 
-        fabAddNote.setOnClickListener {
+        binding.fabAddNote.setOnClickListener {
             findNavController().navigate(
                 NotesFragmentDirections.actionNotesFragmentToAddEditNoteFragment(
                     ""
@@ -78,7 +82,7 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
                 when (result.status) {
                     Status.SUCCESS -> {
                         noteAdapter.notes = result.data!!
-                        swipeRefreshLayout.isRefreshing = false
+                        binding.swipeRefreshLayout.isRefreshing = false
                     }
                     Status.ERROR -> {
                         event.getContentIfnotHandled()?.let { errorResource ->
@@ -90,7 +94,7 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
                         result.data?.let { notes ->
                             noteAdapter.notes = notes
                         }
-                        swipeRefreshLayout.isRefreshing = false
+                        binding.swipeRefreshLayout.isRefreshing = false
                     }
                     Status.LOADING -> {
                         // notes from db
@@ -98,14 +102,14 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
                             noteAdapter.notes = notes
                         }
                         //enable loading bar
-                        swipeRefreshLayout.isRefreshing = true
+                        binding.swipeRefreshLayout.isRefreshing = true
                     }
                 }
             }
         })
         //in order to avoid swiping-away item and swipe-to-refresh at the same time
         swipingItem.observe(viewLifecycleOwner, Observer {
-            swipeRefreshLayout.isEnabled = !it
+            binding.swipeRefreshLayout.isEnabled = !it
         })
     }
 
@@ -150,12 +154,12 @@ class NotesFragment : BaseFragment(R.layout.fragment_notes) {
     }
 
     private fun setupSwipeRefreshedLayout(){
-        swipeRefreshLayout.setOnRefreshListener {
+        binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.syncAllNotes()
         }
     }
 
-    private fun setupRecyclerView() = rvNotes.apply {
+    private fun setupRecyclerView() = binding.rvNotes.apply {
         noteAdapter = NoteAdapter()
         adapter = noteAdapter
         layoutManager = LinearLayoutManager(requireContext())
